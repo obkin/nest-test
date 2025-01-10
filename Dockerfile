@@ -1,12 +1,15 @@
 FROM node:lts-alpine
 
-# Встановлення Python та необхідних залежностей для node-gyp
 RUN apk --no-cache add python3 make g++
 
 WORKDIR /app
-COPY . /app
+
+COPY package*.json ./
 
 RUN npm install
+
+COPY . .
+
 RUN npm rebuild bcrypt --build-from-source
 
 EXPOSE 3030
