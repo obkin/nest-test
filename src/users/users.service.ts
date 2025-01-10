@@ -2,6 +2,7 @@ import {
   ConflictException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { User } from './models/user.model';
 import { ConfigService } from '@nestjs/config';
@@ -31,6 +32,19 @@ export class UsersService {
       });
 
       return newUser;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async getUserByEmail(email: string): Promise<User> {
+    try {
+      const user = await this.usersRepository.getUserByEmail(email);
+      if (!user) {
+        throw new NotFoundException('User with such email not found');
+      } else {
+        return user;
+      }
     } catch (e) {
       throw e;
     }
