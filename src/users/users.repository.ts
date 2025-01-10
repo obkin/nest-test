@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './models/user.model';
-import { UserCreateDto } from './dto/user-create.dto';
+import { UserRegisterDto } from 'src/auth/dto/user-register.dto';
 
 @Injectable()
 export class UsersRepository {
   constructor(@InjectModel(User) private userModel: typeof User) {}
 
-  async createUser(dto: UserCreateDto): Promise<User> {
+  async createUser(dto: UserRegisterDto): Promise<User> {
     try {
       return this.userModel.create(dto);
     } catch (e) {

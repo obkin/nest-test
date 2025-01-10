@@ -1,9 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { RefreshTokenDto } from './dto/refresh-token.dto';
-import { AccessTokenDto } from './dto/access-token.dto';
 import { RefreshTokenModel } from './models/refresh-token.model';
 import { AccessTokenModel } from './models/access-token.model';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { AccessTokenDto } from './dto/access-token.dto';
 
 @Injectable()
 export class RefreshTokenRepository {

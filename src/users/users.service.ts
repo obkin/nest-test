@@ -8,6 +8,7 @@ import { User } from './models/user.model';
 import { ConfigService } from '@nestjs/config';
 import { UsersRepository } from './users.repository';
 import { genSalt, hash } from 'bcrypt';
+import { UserRegisterDto } from 'src/auth/dto/user-register.dto';
 
 @Injectable()
 export class UsersService {
@@ -16,18 +17,16 @@ export class UsersService {
     private readonly configService: ConfigService,
   ) {}
 
-  async createUser(model: User): Promise<User> {
+  async createUser(dto: UserRegisterDto): Promise<User> {
     try {
-      const existingUser = await this.usersRepository.getUserByEmail(
-        model.email,
-      );
+      const existingUser = await this.usersRepository.getUserByEmail(dto.email);
       if (existingUser) {
         throw new ConflictException('User with such email already exists');
       }
 
-      const hashedPassword = await this.hashPassword(model.password);
+      const hashedPassword = await this.hashPassword(dto.password);
       const newUser = await this.usersRepository.createUser({
-        ...model,
+        ...dto,
         password: hashedPassword,
       });
 

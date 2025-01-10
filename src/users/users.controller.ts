@@ -10,6 +10,7 @@ import {
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { User } from './models/user.model';
 import { UsersService } from './users.service';
+import { UserRegisterDto } from 'src/auth/dto/user-register.dto';
 
 @Controller('/users')
 export class UsersController {
@@ -30,9 +31,9 @@ export class UsersController {
     description: 'Internal Server Error',
   })
   @Post()
-  async createUser(@Body() model: User) {
+  async createUser(@Body() dto: UserRegisterDto) {
     try {
-      return await this.usersService.createUser(model);
+      return await this.usersService.createUser(dto);
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;
@@ -50,10 +51,6 @@ export class UsersController {
     status: 200,
     description: 'Retrieved user by email',
     type: User,
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Wrong email format',
   })
   @ApiResponse({
     status: 404,
