@@ -11,12 +11,13 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserModel } from 'src/users/models/user.model';
 import { UserRegisterDto } from './dto/user-register.dto';
 import { UserLoginResponseDto } from './dto/user-login-response.dto';
 import { UserLoginDto } from './dto/user-login.dto';
 import { Request } from 'express';
+import { Public } from 'src/common/decorators/public.decorator';
 
 @ApiTags('auth')
 @Controller('/auth')
@@ -37,7 +38,7 @@ export class AuthController {
     status: 500,
     description: 'Internal Server Error',
   })
-  //   @Public()
+  @Public()
   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   @Post('/register')
   async register(@Body() dto: UserRegisterDto) {
@@ -69,7 +70,7 @@ export class AuthController {
     status: 500,
     description: 'Internal Server Error',
   })
-  //   @Public()
+  @Public()
   @HttpCode(200)
   @Post('/login')
   async login(@Body() dto: UserLoginDto) {
@@ -100,7 +101,6 @@ export class AuthController {
     status: 500,
     description: 'Internal Server Error',
   })
-  @ApiQuery({ name: 'userId', required: true, description: 'ID of the user' })
   @Delete('/logout')
   async logout(@Req() req: Request) {
     try {
