@@ -2,7 +2,7 @@ import { Column, Model, Table, DataType } from 'sequelize-typescript';
 import { ApiProperty } from '@nestjs/swagger';
 
 @Table
-export class User extends Model<User> {
+export class UserModel extends Model<UserModel> {
   @ApiProperty({
     description: 'Email of the user',
     example: 'user@example.com',

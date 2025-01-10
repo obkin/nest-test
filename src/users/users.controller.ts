@@ -7,11 +7,12 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { User } from './models/user.model';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { UserModel } from './models/user.model';
 import { UsersService } from './users.service';
 import { UserRegisterDto } from 'src/auth/dto/user-register.dto';
 
+@ApiTags('users')
 @Controller('/users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -20,7 +21,7 @@ export class UsersController {
   @ApiResponse({
     status: 201,
     description: 'New user created',
-    type: User,
+    type: UserModel,
   })
   @ApiResponse({
     status: 409,
@@ -50,7 +51,7 @@ export class UsersController {
   @ApiResponse({
     status: 200,
     description: 'Retrieved user by email',
-    type: User,
+    type: UserModel,
   })
   @ApiResponse({
     status: 404,

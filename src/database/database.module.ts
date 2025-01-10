@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { User } from 'src/users/models/user.model';
+import { UserModel } from 'src/users/models/user.model';
 import { UsersModule } from 'src/users/users.module';
 
 @Module({
@@ -16,7 +16,7 @@ import { UsersModule } from 'src/users/users.module';
         username: configService.get('DB_USER'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_NAME'),
-        models: [User],
+        models: [UserModel],
         autoLoadModels: true,
         synchronize: true, // off defore production
       }),

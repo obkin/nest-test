@@ -4,7 +4,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { User } from './models/user.model';
+import { UserModel } from './models/user.model';
 import { ConfigService } from '@nestjs/config';
 import { UsersRepository } from './users.repository';
 import { genSalt, hash } from 'bcrypt';
@@ -17,7 +17,7 @@ export class UsersService {
     private readonly configService: ConfigService,
   ) {}
 
-  async createUser(dto: UserRegisterDto): Promise<User> {
+  async createUser(dto: UserRegisterDto): Promise<UserModel> {
     try {
       const existingUser = await this.usersRepository.getUserByEmail(dto.email);
       if (existingUser) {
@@ -36,7 +36,7 @@ export class UsersService {
     }
   }
 
-  async getUserByEmail(email: string): Promise<User> {
+  async getUserByEmail(email: string): Promise<UserModel> {
     try {
       const user = await this.usersRepository.getUserByEmail(email);
       if (!user) {
