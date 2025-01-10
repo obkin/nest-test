@@ -8,12 +8,22 @@ import {
 import { SequelizeModule } from '@nestjs/sequelize';
 import { AccessTokenModel } from './models/access-token.model';
 import { RefreshTokenModel } from './models/refresh-token.model';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { UsersModule } from 'src/users/users.module';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
     SequelizeModule.forFeature([AccessTokenModel, RefreshTokenModel]),
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'),
+      }),
+      inject: [ConfigService],
+    }),
     ConfigModule,
+    UsersModule,
   ],
   providers: [AuthService, RefreshTokenRepository, AccessTokenRepository],
   controllers: [AuthController],

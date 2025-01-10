@@ -22,4 +22,12 @@ export class UsersRepository {
       throw e;
     }
   }
+
+  async getUserById(id: number): Promise<UserModel> {
+    try {
+      return await this.userModel.findOne({ where: { id } });
+    } catch (e) {
+      throw e;
+    }
+  }
 }

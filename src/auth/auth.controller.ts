@@ -1,8 +1,22 @@
-import { Body, Controller, HttpException, HttpStatus, Post, UsePipes, ValidationPipe } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  HttpCode,
+  HttpException,
+  HttpStatus,
+  Post,
+  Req,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserModel } from 'src/users/models/user.model';
 import { UserRegisterDto } from './dto/user-register.dto';
+import { UserLoginResponseDto } from './dto/user-login-response.dto';
+import { UserLoginDto } from './dto/user-login.dto';
+import { Request } from 'express';
 
 @ApiTags('auth')
 @Controller('/auth')
@@ -28,13 +42,77 @@ export class AuthController {
   @Post('/register')
   async register(@Body() dto: UserRegisterDto) {
     try {
-    //   return await this.authService.userRegister(dto);
+      return await this.authService.userRegister(dto);
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;
       } else {
         throw new HttpException(
           `Failed to register new user. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  @ApiOperation({ summary: 'Login as user' })
+  @ApiResponse({
+    status: 200,
+    description: 'Signed in as user',
+    type: UserLoginResponseDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Wrong email or password',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  //   @Public()
+  @HttpCode(200)
+  @Post('/login')
+  async login(@Body() dto: UserLoginDto) {
+    try {
+      return await this.authService.userLogin(dto);
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to login. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  @ApiOperation({ summary: 'Logout user' })
+  @ApiResponse({
+    status: 200,
+    description: 'User logged out',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'This user is not logged in',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @ApiQuery({ name: 'userId', required: true, description: 'ID of the user' })
+  @Delete('/logout')
+  async logout(@Req() req: Request) {
+    try {
+      const userId = Number(req.user.id);
+      await this.authService.userLogout(userId);
+      return { userId, message: 'User logged out' };
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to logout. ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }

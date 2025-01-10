@@ -49,6 +49,19 @@ export class UsersService {
     }
   }
 
+  async getUserById(id: number): Promise<UserModel> {
+    try {
+      const user = await this.usersRepository.getUserById(id);
+      if (!user) {
+        throw new NotFoundException('User with such id not found');
+      } else {
+        return user;
+      }
+    } catch (e) {
+      throw e;
+    }
+  }
+
   // --- Methods ---
 
   public async hashPassword(password: string): Promise<string> {
