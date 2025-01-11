@@ -39,6 +39,31 @@ export class UsersRepository {
     }
   }
 
+  async changeUserEmail(user: UserModel, newEmail: string): Promise<UserModel> {
+    try {
+      user.email = newEmail;
+      await user.save();
+
+      return user;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async changeUserPassword(
+    user: UserModel,
+    newPassword: string,
+  ): Promise<UserModel> {
+    try {
+      user.password = newPassword;
+      await user.save();
+
+      return user;
+    } catch (e) {
+      throw e;
+    }
+  }
+
   async deleteUserById(userId: number): Promise<void> {
     try {
       await this.userModel.destroy({ where: { id: userId } });

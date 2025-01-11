@@ -8,12 +8,17 @@ import {
   HttpStatus,
   Param,
   Post,
+  Put,
   Query,
+  Req,
 } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserModel } from './models/user.model';
 import { UsersService } from './users.service';
 import { UserRegisterDto } from 'src/auth/dto/user-register.dto';
+import { ChangeUserEmailDto } from './dto/change-user-email.dto';
+import { Request } from 'express';
+import { ChangeUserPasswordDto } from './dto/change-user-password.dto';
 
 @ApiTags('users')
 @Controller('/users')
@@ -136,6 +141,88 @@ export class UsersController {
       } else {
         throw new HttpException(
           `Failed to get all users. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  @ApiOperation({ summary: 'Change user email' })
+  @ApiResponse({
+    status: 200,
+    description: 'User email changed',
+    type: UserModel,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Enter a new email',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'User with such email already exists',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @Put('/change-email')
+  async changeUserEmail(@Body() dto: ChangeUserEmailDto, @Req() req: Request) {
+    try {
+      return await this.usersService.changeUserEmail(Number(req.user.id), dto);
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to change user email. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  @ApiOperation({ summary: 'Change user password' })
+  @ApiResponse({
+    status: 200,
+    description: 'User password changed',
+    type: UserModel,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Enter a new password',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Wrong old password',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @Put('/change-password')
+  async changeUserPassword(
+    @Body() dto: ChangeUserPasswordDto,
+    @Req() req: Request,
+  ) {
+    try {
+      return await this.usersService.changeUserPassword(
+        Number(req.user.id),
+        dto,
+      );
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to change user password. ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
