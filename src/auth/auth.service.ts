@@ -218,37 +218,23 @@ export class AuthService {
 
   // --- Refresh tokens' logic ---
   async saveRefreshToken(dto: RefreshTokenDto): Promise<RefreshTokenModel> {
-    // const queryRunner = this.dataSource.createQueryRunner();
-    // await queryRunner.connect();
-    // await queryRunner.startTransaction();
     try {
       const existingRefreshToken =
-        await this.refreshTokenRepository.findRefreshTokenByUserId(
-          dto.userId,
-          //   queryRunner.manager,
-        );
+        await this.refreshTokenRepository.findRefreshTokenByUserId(dto.userId);
       if (existingRefreshToken) {
-        await this.refreshTokenRepository.deleteRefreshToken(
-          dto.userId,
-          //   queryRunner.manager,
-        );
+        await this.refreshTokenRepository.deleteRefreshToken(dto.userId);
       }
       const savedRefreshToken =
-        await this.refreshTokenRepository.saveRefreshToken(
-          dto,
-          //   queryRunner.manager,
-        );
+        await this.refreshTokenRepository.saveRefreshToken(dto);
       if (!savedRefreshToken) {
         throw new InternalServerErrorException(
           'Refresh token not saved. RefreshTokenRepository did not return RefreshTokenEntity',
         );
       } else {
-        // await queryRunner.commitTransaction();
         this.logger.log(`Refresh token saved (userId: ${dto.userId})`);
         return savedRefreshToken;
       }
     } catch (e) {
-      //   await queryRunner.rollbackTransaction();
       if (e.code === '23505') {
         this.logger.warn(
           `Failed to save refresh token (userId: ${dto.userId} / error: Such refresh token already exists)`,
@@ -260,8 +246,6 @@ export class AuthService {
         );
         throw e;
       }
-    } finally {
-      //   await queryRunner.release();
     }
   }
 
@@ -297,38 +281,25 @@ export class AuthService {
     dto: AccessTokenDto,
     shouldLog: boolean = true,
   ): Promise<AccessTokenModel> {
-    // const queryRunner = this.dataSource.createQueryRunner();
-    // await queryRunner.connect();
-    // await queryRunner.startTransaction();
     try {
       const existingAccessToken =
-        await this.accessTokenRepository.findAccessTokenByUserId(
-          dto.userId,
-          //   queryRunner.manager,
-        );
+        await this.accessTokenRepository.findAccessTokenByUserId(dto.userId);
       if (existingAccessToken) {
-        await this.accessTokenRepository.deleteAccessToken(
-          dto.userId,
-          //   queryRunner.manager,
-        );
+        await this.accessTokenRepository.deleteAccessToken(dto.userId);
       }
-      const savedAccessToken = await this.accessTokenRepository.saveAccessToken(
-        dto,
-        // queryRunner.manager,
-      );
+      const savedAccessToken =
+        await this.accessTokenRepository.saveAccessToken(dto);
       if (!savedAccessToken) {
         throw new InternalServerErrorException(
           'Access token not saved. AccessTokenRepository did not return AccessTokenEntity',
         );
       } else {
-        // await queryRunner.commitTransaction();
         if (shouldLog) {
           this.logger.log(`Access token saved (userId: ${dto.userId})`);
         }
         return savedAccessToken;
       }
     } catch (e) {
-      //   await queryRunner.rollbackTransaction();
       if (e.code === '23505') {
         this.logger.warn(
           `Failed to save access token (userId: ${dto.userId} / error: Such access token already exists)`,
@@ -340,8 +311,6 @@ export class AuthService {
         );
         throw e;
       }
-    } finally {
-      //   await queryRunner.release();
     }
   }
 
