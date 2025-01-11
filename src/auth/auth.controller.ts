@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Post,
   Req,
+  UnauthorizedException,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -113,6 +114,44 @@ export class AuthController {
       } else {
         throw new HttpException(
           `Failed to logout. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  // --- Methods ---
+
+  @ApiOperation({ summary: 'Refresh access token' })
+  @ApiResponse({
+    status: 200,
+    description: 'Access token refreshed',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Invalid refresh token / Refresh token is required',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @Public()
+  @HttpCode(200)
+  @Post('/refresh')
+  async refreshAccessToken(@Body('refreshToken') refreshToken: string) {
+    if (!refreshToken) {
+      throw new UnauthorizedException('Refresh token is required');
+    }
+    try {
+      return {
+        accessToken: await this.authService.refreshAccessToken(refreshToken),
+      };
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to refresh access token. ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
