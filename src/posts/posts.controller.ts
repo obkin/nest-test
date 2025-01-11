@@ -28,7 +28,7 @@ export class PostsController {
     status: 500,
     description: 'Internal Server Error',
   })
-  @Get('/save-posts')
+  @Get('/external')
   async savePostsToDB() {
     try {
       const posts = await this.postsService.savePostsToDB();
@@ -62,10 +62,14 @@ export class PostsController {
     status: 500,
     description: 'Internal Server Error',
   })
-  @Get('/get-posts')
+  @Get()
   async getPostsFromDB() {
     try {
-      return await this.postsService.getPostsFromDB();
+      const posts = await this.postsService.getPostsFromDB();
+      return {
+        postsCount: posts.length,
+        posts,
+      };
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;
@@ -87,10 +91,11 @@ export class PostsController {
     status: 500,
     description: 'Internal Server Error',
   })
-  @Delete('/delete-posts')
+  @Delete()
   async deletePostsFromDB() {
     try {
-      return this.postsService.deletePostsFromDB();
+      await this.postsService.deletePostsFromDB();
+      return { message: 'All posts deleted from database' };
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;

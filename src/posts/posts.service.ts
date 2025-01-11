@@ -1,13 +1,16 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { lastValueFrom } from 'rxjs';
-import { PostModel } from './models/post.model';
+import { PostsRepository } from './posts.repository';
 
 @Injectable()
 export class PostsService {
   private readonly logger = new Logger(PostsService.name);
 
-  constructor(private readonly httpService: HttpService) {}
+  constructor(
+    private readonly httpService: HttpService,
+    private readonly postsRepository: PostsRepository,
+  ) {}
 
   async savePostsToDB() {
     const response = await lastValueFrom(
@@ -16,16 +19,14 @@ export class PostsService {
     const posts = response.data.slice(0, 10); // only 10 posts
 
     for (const post of posts) {
-      const existingPost = await PostModel.findOne({
-        where: { id: post.id },
-      });
+      const existingPost = await this.postsRepository.findPostById(post.id);
 
       if (existingPost) {
         this.logger.warn(`Post with ID ${post.id} already exists. Skipping.`);
         continue;
       }
 
-      await PostModel.create({
+      await this.postsRepository.createPost({
         userId: post.userId,
         id: post.id,
         title: post.title,
@@ -41,7 +42,7 @@ export class PostsService {
 
   async getPostsFromDB() {
     try {
-      return await PostModel.findAll();
+      return await this.postsRepository.findAllPosts();
     } catch (e) {
       throw e;
     }
@@ -49,10 +50,8 @@ export class PostsService {
 
   async deletePostsFromDB() {
     try {
-      await PostModel.destroy({
-        where: {},
-      });
-      this.logger.log('Posts deleted from database');
+      await this.postsRepository.deleteAllPosts();
+      this.logger.log('All posts deleted from database');
     } catch (e) {
       throw e;
     }
