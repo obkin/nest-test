@@ -14,15 +14,25 @@ export class PostsService {
       this.httpService.get('https://jsonplaceholder.typicode.com/posts'),
     );
     const posts = response.data.slice(0, 10); // only 10 posts
-    console.log(posts);
 
     for (const post of posts) {
+      const existingPost = await PostModel.findOne({
+        where: { id: post.id },
+      });
+
+      if (existingPost) {
+        this.logger.warn(`Post with ID ${post.id} already exists. Skipping.`);
+        continue;
+      }
+
       await PostModel.create({
         userId: post.userId,
         id: post.id,
         title: post.title,
         body: post.body,
       });
+
+      this.logger.log(`Post with ID ${post.id} saved to database.`);
     }
 
     this.logger.log('Posts saved to database');

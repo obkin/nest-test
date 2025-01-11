@@ -29,9 +29,13 @@ export class PostsController {
     description: 'Internal Server Error',
   })
   @Get('/save-posts')
-  async savePosts() {
+  async savePostsToDB() {
     try {
-      return await this.postsService.savePostsToDB();
+      const posts = await this.postsService.savePostsToDB();
+      return {
+        postsCount: posts.length,
+        posts,
+      };
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;
@@ -59,7 +63,7 @@ export class PostsController {
     description: 'Internal Server Error',
   })
   @Get('/get-posts')
-  async getPosts() {
+  async getPostsFromDB() {
     try {
       return await this.postsService.getPostsFromDB();
     } catch (e) {
