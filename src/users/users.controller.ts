@@ -1,13 +1,16 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
   HttpException,
   HttpStatus,
+  Param,
   Post,
   Query,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserModel } from './models/user.model';
 import { UsersService } from './users.service';
 import { UserRegisterDto } from 'src/auth/dto/user-register.dto';
@@ -61,7 +64,7 @@ export class UsersController {
     status: 500,
     description: 'Internal Server Error',
   })
-  @Get()
+  @Get('/get-by-email')
   async getUserByEmail(@Query('email') email: string) {
     try {
       return await this.usersService.getUserByEmail(email);
@@ -71,6 +74,107 @@ export class UsersController {
       } else {
         throw new HttpException(
           `Failed to get user by email. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  @ApiOperation({ summary: 'Get user by id' })
+  @ApiResponse({
+    status: 200,
+    description: 'Retrieved user by id',
+    type: UserModel,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Wrong id format',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User with such id not found',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @ApiQuery({ name: 'id', required: true, description: 'ID of the user' })
+  @Get('/get-by-id/:id')
+  async getUserById(@Param('id') id: number) {
+    try {
+      return await this.usersService.getUserById(id);
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to get user by id. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  @ApiOperation({ summary: 'Get all users' })
+  @ApiResponse({
+    status: 200,
+    description: 'Retrieved all users',
+    type: [UserModel],
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @Get('/get-all')
+  async getAllUsers() {
+    try {
+      const users = await this.usersService.getAllUsers();
+      return { amount: users.length, users };
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to get all users. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  @ApiOperation({ summary: 'Delete user' })
+  @ApiResponse({
+    status: 200,
+    description: 'User deleted',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'This user is admin',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @ApiQuery({ name: 'id', required: true, description: 'ID of the user' })
+  @HttpCode(200)
+  @Delete('/delete-user/:id')
+  async deleteUser(@Param('id') userId: number) {
+    try {
+      await this.usersService.deleteUser(userId);
+      return {
+        userId,
+        message: 'User deleted',
+      };
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to delete the user. ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }

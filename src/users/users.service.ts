@@ -2,6 +2,7 @@ import {
   ConflictException,
   Injectable,
   InternalServerErrorException,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { UserModel } from './models/user.model';
@@ -12,6 +13,7 @@ import { UserRegisterDto } from 'src/auth/dto/user-register.dto';
 
 @Injectable()
 export class UsersService {
+  private readonly logger = new Logger(UsersService.name);
   constructor(
     private readonly usersRepository: UsersRepository,
     private readonly configService: ConfigService,
@@ -57,6 +59,31 @@ export class UsersService {
       } else {
         return user;
       }
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async getAllUsers(): Promise<UserModel[]> {
+    try {
+      return await this.usersRepository.getAllUsers();
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async deleteUser(userId: number): Promise<void> {
+    try {
+      const user = await this.usersRepository.getUserById(userId);
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      await this.usersRepository.deleteUserById(userId);
+
+      this.logger.log(
+        `User successfully deleted (userId: ${user.id}, email: ${user.email})`,
+      );
     } catch (e) {
       throw e;
     }

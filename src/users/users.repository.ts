@@ -30,4 +30,20 @@ export class UsersRepository {
       throw e;
     }
   }
+
+  async getAllUsers(): Promise<UserModel[]> {
+    try {
+      return await this.userModel.findAll();
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async deleteUserById(userId: number): Promise<void> {
+    try {
+      await this.userModel.destroy({ where: { id: userId } });
+    } catch (e) {
+      throw e;
+    }
+  }
 }
